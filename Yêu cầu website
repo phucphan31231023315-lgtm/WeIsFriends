@@ -1,0 +1,90 @@
+Build a fullscreen cinematic 3D scroll website, visually similar to the reference image: a dark futuristic indoor exhibition corridor with glowing image screens.
+
+This is a 3D experience, not a normal flat website.
+
+Core concept:
+A long, dark museum-like corridor. The user scrolls and the camera moves forward slowly through the corridor. Along the way, 5-6 photo panels appear like illuminated digital exhibition boards. The feeling should be immersive, cinematic, mysterious, premium, and emotional.
+
+Tech stack:
+- Next.js
+- React Three Fiber
+- Drei
+- Three.js
+- GSAP ScrollTrigger
+- Lenis smooth scroll
+- Tailwind CSS
+
+Scene layout:
+- Fullscreen fixed 3D canvas
+- Long rectangular corridor extending deep on the Z axis
+- Dark glossy reflective floor
+- Tall dark walls on left and right
+- Ceiling with repeated warm rectangular lights
+- Thin golden light strips running along the ceiling and wall edges
+- Repeated vertical columns on both sides
+- Strong depth perspective
+- Background fades into darkness with fog
+
+Camera behavior:
+- Camera starts at the corridor entrance
+- As the user scrolls, camera moves forward along the Z axis
+- Page height around 500vh
+- Canvas stays fixed while scroll controls camera movement
+- Use GSAP ScrollTrigger with scrub:true
+- Add subtle camera sway on X/Y for cinematic movement
+- Do not rotate camera too much; keep it looking forward into the corridor
+
+Photo panels:
+- Use 5-6 test images first
+- Place photo panels at different depths along the corridor
+- Some panels on the left, some on the right, some near the center
+- Each panel should be a vertical or square digital screen
+- Panels should have thick dark frame
+- Panels should emit soft colored glow
+- Panels should slightly reflect on the glossy floor
+- Panels should face the camera
+- When the camera gets close to a panel, it becomes brighter and scales slightly
+- When far away, it should be darker and softer
+
+Interaction:
+- User can click a photo panel
+- Open fullscreen dark modal
+- Show large image, title, caption, and close button
+- Modal should feel premium and minimal
+
+Test assets:
+Use placeholder images first from:
+/public/memories/memory-01.jpg
+/public/memories/memory-02.jpg
+/public/memories/memory-03.jpg
+/public/memories/memory-04.jpg
+/public/memories/memory-05.jpg
+/public/memories/memory-06.jpg
+
+Suggested components:
+- app/page.jsx
+- components/MemoryExperience.jsx
+- components/MemoryScene.jsx
+- components/PhotoPanel.jsx
+- components/MemoryModal.jsx
+- components/SmoothScroll.jsx
+- data/memories.js
+
+Visual details:
+- Dark brown / black corridor
+- Warm amber lighting
+- Subtle bloom effect
+- Light fog
+- Reflections on floor
+- Slow premium motion
+- No colorful childish design
+- No standard grid gallery
+- No normal website sections
+- The whole website should feel like walking through a digital memory museum
+
+Performance:
+- Keep first version simple
+- Use only 5-6 image panels
+- Avoid heavy models
+- Use basic geometry for corridor, walls, lights, columns, and panels
+- Make it run locally first
