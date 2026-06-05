@@ -42,6 +42,155 @@ export default function AdminPage() {
       .replace(/-+/g, '-'); // collapse dashes
   };
 
+  // Contextual title & caption generator
+  const generateTitleAndCaption = (fileName, place, photoIndex) => {
+    const name = fileName ? fileName.toLowerCase() : '';
+    const placeName = place?.name || 'Kỷ ức';
+
+    // 1. Detect category based on filename
+    let category = 'general';
+    if (name.includes('food') || name.includes('eat') || name.includes('banh') || name.includes('cook') || name.includes('an') || name.includes('bbq') || name.includes('lau')) {
+      category = 'food';
+    } else if (name.includes('cafe') || name.includes('coffee') || name.includes('quan') || name.includes('drink') || name.includes('ca-phe')) {
+      category = 'cafe';
+    } else if (name.includes('sunset') || name.includes('hoang-hon') || name.includes('chieu') || name.includes('evening')) {
+      category = 'sunset';
+    } else if (name.includes('sea') || name.includes('beach') || name.includes('bien') || name.includes('song') || name.includes('ocean')) {
+      category = 'sea';
+    } else if (name.includes('night') || name.includes('dem') || name.includes('toi') || name.includes('dark')) {
+      category = 'night';
+    } else if (name.includes('road') || name.includes('path') || name.includes('di') || name.includes('travel') || name.includes('go') || name.includes('trip') || name.includes('route')) {
+      category = 'road';
+    }
+
+    const isDalat = placeName.toLowerCase().includes('đà lạt') || placeName.toLowerCase().includes('da lat');
+    const isVungTau = placeName.toLowerCase().includes('vũng tàu') || placeName.toLowerCase().includes('vung tau');
+    const isHaTien = placeName.toLowerCase().includes('hà tiên') || placeName.toLowerCase().includes('ha tien');
+    const isCaoLanh = placeName.toLowerCase().includes('cao lãnh') || placeName.toLowerCase().includes('cao lanh');
+
+    let titles = [];
+    let captions = [];
+
+    if (category === 'food') {
+      titles = [
+        `Ẩm thực ${placeName} 🍲`,
+        `Bữa tối ấm cúng tại ${placeName} 🍢`,
+        `Hương vị bản địa ✨`,
+        `Thưởng thức món ngon cùng nhau 🥢`
+      ];
+      captions = [
+        `Khám phá ẩm thực độc đáo của ${placeName}, cùng nhau ăn uống trò chuyện rôm rả dưới không khí tuyệt vời.`,
+        `Hương vị thơm ngon ấm áp kết nối những người bạn xích lại gần nhau hơn trong chuyến đi này.`,
+        `Một bữa ăn giản dị nhưng đong đầy tiếng cười và niềm vui của tình bạn.`
+      ];
+    } else if (category === 'cafe') {
+      titles = [
+        `Góc cà phê ${placeName} ☕`,
+        `Trạm dừng chân bình yên`,
+        `Thảnh thơi cùng ly nước mát`,
+        `Góc quán nhỏ tại ${placeName}`
+      ];
+      captions = [
+        `Góc quán nhỏ yên tĩnh tại ${placeName}, thưởng thức ly nước và chia sẻ những câu chuyện không hồi kết.`,
+        `Một chút nhạc êm dịu, ly cà phê thơm và không gian thư giãn tuyệt đối bên những người bạn.`,
+        `Lưu lại một buổi chiều nhẹ nhàng, thảnh thơi sau những giờ di chuyển dài.`
+      ];
+    } else if (category === 'sunset') {
+      titles = [
+        `Hoàng hôn buông tại ${placeName} 🌅`,
+        `Ánh nắng cuối ngày`,
+        `Chiều hoàng hôn rực rỡ`,
+        `Khung cảnh chiều tà lãng mạn`
+      ];
+      captions = [
+        `Khi bầu trời chuyển màu cam ấm áp, chúng tôi lặng im ngắm nhìn khoảnh khắc hoàng hôn buông xuống thật đẹp.`,
+        `Hoàng hôn ${placeName} luôn biết cách chiều lòng người bằng những gam màu dịu dàng và thơ mộng.`,
+        `Khép lại một ngày dài bằng khung cảnh bình yên tuyệt đối bên chân trời rực đỏ.`
+      ];
+    } else if (category === 'sea' || isVungTau || isHaTien) {
+      titles = [
+        `Biển xanh nắng vàng 🌊`,
+        `Tiếng sóng biển rì rào`,
+        `Gió biển lộng gió`,
+        `Về với biển khơi ${placeName} 🏖️`
+      ];
+      captions = [
+        `Tiếng sóng vỗ về bờ cát mịn, mang theo làn gió biển mát rượi cuốn trôi mọi mệt mỏi thường nhật.`,
+        `Đứng trước sự bao la của biển cả ${placeName}, lòng bỗng thấy nhẹ nhàng và ngập tràn năng lượng tươi mới.`,
+        `Hít hà vị mặn mòi của gió biển, lưu giữ những tiếng cười giòn giã bên nhau.`
+      ];
+    } else if (category === 'night') {
+      titles = [
+        `Thành phố về đêm 🌙`,
+        `Góc đêm tĩnh lặng tại ${placeName}`,
+        `Dưới ánh đèn lung linh`,
+        `Một đêm đáng nhớ tại ${placeName}`
+      ];
+      captions = [
+        `Khi thành phố lên đèn, những câu chuyện về đêm càng trở nên sâu lắng, ấm áp và đong đầy tình bạn.`,
+        `Khám phá vẻ đẹp lung linh và huyền ảo của ${placeName} dưới màn đêm tĩnh lặng.`,
+        `Một buổi tối trọn vẹn với những khoảnh khắc vui vẻ dưới ánh đèn đêm.`
+      ];
+    } else if (category === 'road') {
+      titles = [
+        `Trên những nẻo đường ${placeName} 🛣️`,
+        `Hành trình vạn dặm`,
+        `Phía trước là bầu trời`,
+        `Cung đường tự do`
+      ];
+      captions = [
+        `Mỗi con đường đi qua đều ghi dấu những bước chân tự do và khát vọng khám phá tuổi trẻ của chúng ta.`,
+        `Hành trình ý nghĩa không nằm ở đích đến, mà là những khoảnh khắc tuyệt vời ta chia sẻ cùng nhau trên đường đi.`,
+        `Đồng hành cùng nhau trên mọi nẻo đường, gom nhặt từng tiếng cười làm hành trang kỷ niệm.`
+      ];
+    } else if (isDalat) {
+      titles = [
+        `Góc phố núi mờ sương 🌲`,
+        `Chiều bình yên Đà Lạt ☕`,
+        `Một chút se lạnh của phố núi`,
+        `Lưu giữ khoảnh khắc Đà Lạt 📸`
+      ];
+      captions = [
+        `Dưới làn sương mờ và những tán thông xanh Đà Lạt, cảm nhận sự yên bình len lỏi qua từng hơi thở.`,
+        `Cái se lạnh đặc trưng của phố núi như được xua tan bởi nụ cười rạng rỡ của những người bạn đồng hành.`,
+        `Đà Lạt chiều lòng người bằng một góc nhỏ bình yên, tiếng thông reo và những kỷ niệm ngọt ngào.`
+      ];
+    } else if (isCaoLanh) {
+      titles = [
+        `Hương sen Đồng Tháp 🪷`,
+        `Đồng sen bát ngát`,
+        `Bình yên miền sông nước`,
+        `Đất sen hồng thanh bình`
+      ];
+      captions = [
+        `Hương sen thoang thoảng trong gió chiều, mang đậm nét mộc mạc và thanh bình đặc trưng của đất Cao Lãnh.`,
+        `Trải nghiệm nhịp sống êm đềm, dung dị nơi miền Tây sông nước trù phú và mến khách.`,
+        `Lưu lại khoảnh khắc bình dị giữa đầm sen, cảm nhận trọn vẹn sự giao hòa của thiên nhiên.`
+      ];
+    } else {
+      titles = [
+        `Kỷ niệm tại ${placeName} ✨`,
+        `Khoảnh khắc đáng nhớ 📸`,
+        `Một góc bình yên`,
+        `We Is Friends 🤝`,
+        `Hành trình trải nghiệm`
+      ];
+      captions = [
+        `Lưu giữ những khoảnh khắc tuyệt đẹp tại ${placeName}, ghi dấu thêm một trang ý nghĩa trong hành trình của tình bạn.`,
+        `Mỗi bức ảnh là một câu chuyện kể về những ngày tháng rực rỡ, bên nhau sẻ chia từng niềm vui tiếng cười.`,
+        `Bởi vì có bạn đồng hành, mọi mảnh đất ta đặt chân đến đều trở nên đặc biệt và đáng trân trọng.`
+      ];
+    }
+
+    const titleIdx = photoIndex % titles.length;
+    const captionIdx = (photoIndex + 2) % captions.length;
+
+    return {
+      title: titles[titleIdx],
+      caption: captions[captionIdx]
+    };
+  };
+
   // Suggest next prefix
   const getNextPrefix = (currentPlaces) => {
     const existingPrefixes = currentPlaces.map(p => parseInt(p.prefix, 10)).filter(n => !isNaN(n));
@@ -126,12 +275,35 @@ export default function AdminPage() {
 
   const handleAddPhoto = async (e) => {
     e.preventDefault();
-    if (!file || !title || !caption) return alert('Please fill all fields');
+    if (!file) return alert('Please select a file first.');
     
     setIsUploading(true);
     
     try {
-      // 1. Upload image
+      // 1. Get location & determine default titles/captions if omitted
+      const updatedPlaces = [...places];
+      const placeIndex = updatedPlaces.findIndex(p => p.id === activePlaceId);
+      if (placeIndex === -1) return alert('Please select a valid location first.');
+      const place = updatedPlaces[placeIndex];
+      const newIndex = place.memories.length;
+
+      let finalTitle = title.trim();
+      let finalCaption = caption.trim();
+      let autoGenerated = false;
+
+      if (!finalTitle || !finalCaption) {
+        const generated = generateTitleAndCaption(file.name, place, newIndex);
+        if (!finalTitle) {
+          finalTitle = generated.title;
+          autoGenerated = true;
+        }
+        if (!finalCaption) {
+          finalCaption = generated.caption;
+          autoGenerated = true;
+        }
+      }
+
+      // 2. Upload image
       const formData = new FormData();
       formData.append('file', file);
       
@@ -143,20 +315,14 @@ export default function AdminPage() {
       
       if (uploadData.error) throw new Error(uploadData.error);
       
-      // 2. Add to data
-      const updatedPlaces = [...places];
-      const placeIndex = updatedPlaces.findIndex(p => p.id === activePlaceId);
-      if (placeIndex === -1) return alert('Please select a valid location first.');
-      const place = updatedPlaces[placeIndex];
-      
-      const newIndex = place.memories.length;
+      // 3. Add to data
       const colors = ['#ffbb00', '#00ffaa', '#ff5500', '#33ccff', '#ff0055'];
       
       const newMemory = {
         id: `${activePlaceId}-${Date.now()}`,
         image: uploadData.url,
-        title,
-        caption,
+        title: finalTitle,
+        caption: finalCaption,
         year,
         glowColor: colors[newIndex % colors.length],
         position: [
@@ -177,7 +343,12 @@ export default function AdminPage() {
       setFile(null);
       setTitle('');
       setCaption('');
-      alert('Photo added successfully!');
+      
+      if (autoGenerated) {
+        alert(`Tải ảnh thành công!\nMột số thông tin trống đã được tự động tạo dựa trên địa điểm & tên tệp:\n- Tiêu đề: "${finalTitle}"\n- Mô tả: "${finalCaption}"`);
+      } else {
+        alert('Photo added successfully!');
+      }
       
     } catch (err) {
       alert('Error adding photo: ' + err.message);
@@ -458,10 +629,9 @@ export default function AdminPage() {
                   />
                   
                   <input 
-                    type="text" placeholder="Title (e.g. Night Out)" 
+                    type="text" placeholder="Title (Optional - auto fill if empty)" 
                     value={title} onChange={e => setTitle(e.target.value)}
                     className="bg-black border border-neutral-800 p-3 rounded text-sm outline-none focus:border-amber-500"
-                    required
                   />
                   
                   <input 
@@ -472,10 +642,9 @@ export default function AdminPage() {
                   />
                   
                   <textarea 
-                    placeholder="Caption..." 
+                    placeholder="Caption (Optional - auto fill if empty)..." 
                     value={caption} onChange={e => setCaption(e.target.value)}
                     className="bg-black border border-neutral-800 p-3 rounded text-sm outline-none focus:border-amber-500 h-24 resize-none"
-                    required
                   />
                   
                   <button 
