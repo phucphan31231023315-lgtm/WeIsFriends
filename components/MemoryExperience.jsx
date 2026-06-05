@@ -33,6 +33,15 @@ export default function MemoryExperience() {
   const activePlace = places?.find(p => p.id === activePlaceId) || places?.[0];
   const activeMemories = activePlace?.memories || [];
 
+  // Dynamically compute scroll depth based on the deepest memory position
+  const maxMemoryDepth = activeMemories.length > 0
+    ? Math.max(...activeMemories.map(m => Math.abs(m.position[2])))
+    : 40;
+  // Camera needs to travel past the last image + 15 units buffer
+  const scrollDepth = Math.max(55.5, maxMemoryDepth + 15);
+  // Scale page height proportionally so scroll range matches camera travel
+  const pageHeightVh = Math.max(500, Math.round((scrollDepth / 55.5) * 500 / 50) * 50);
+
   // Monitor scroll for fading UI elements (like scroll indicator)
   useEffect(() => {
     const handleScroll = () => {
@@ -290,12 +299,13 @@ export default function MemoryExperience() {
   }
 
   return (
-    <div className="relative w-full min-h-[500vh] text-white">
+    <div className="relative w-full text-white" style={{ minHeight: `${pageHeightVh}vh` }}>
       {/* 3D Canvas Scene Background */}
       <MemoryCanvas 
         activePlaceId={activePlaceId}
         memories={activeMemories} 
-        onPanelClick={handlePanelClick} 
+        onPanelClick={handlePanelClick}
+        scrollDepth={scrollDepth}
       />
 
       {/* Screen Grid overlay effect (subtle scanline premium design) */}

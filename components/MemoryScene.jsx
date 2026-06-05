@@ -9,7 +9,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 import PhotoPanel from './PhotoPanel';
 
-export default function MemoryScene({ activePlaceId, memories, onPanelClick }) {
+export default function MemoryScene({ activePlaceId, memories, onPanelClick, scrollDepth = 55.5 }) {
   const scrollProxy = useRef({ z: 3.5 });
   const particlesRef = useRef(null);
   
@@ -149,10 +149,10 @@ export default function MemoryScene({ activePlaceId, memories, onPanelClick }) {
     }
 
     // 5. Pre-baked warm spotlight glowing patches
-    // Spotlights located at Z = 8, -8, -24, -40, -54 mapped to Z spanning [12 to -66]
-    const lightZ = [8, -8, -24, -40, -54];
+    // Spotlights located at Z = 8, -8, -24, -40, -54 and continuing into the far distance
+    const lightZ = [8, -8, -24, -40, -54, -70, -86, -102];
     lightZ.forEach(z => {
-      const x = 2048 * (12 - z) / 78;
+      const x = 2048 * (12 - z) / 132;
       const grad = ctx.createRadialGradient(x, 40, 0, x, 40, 300);
       grad.addColorStop(0, 'rgba(245, 158, 11, 0.06)'); // soft gold highlight
       grad.addColorStop(0.5, 'rgba(245, 158, 11, 0.02)');
@@ -165,9 +165,9 @@ export default function MemoryScene({ activePlaceId, memories, onPanelClick }) {
     });
 
     // 6. Pre-baked ambient occlusion column shadows
-    // Columns placed every 6 units from Z = 12 down to -66
-    for (let i = 0; i <= 13; i++) {
-      const x = 2048 * (i * 6) / 78;
+    // Columns placed every 8 units from Z = 12 down to -120
+    for (let i = 0; i <= 17; i++) {
+      const x = 2048 * (i * 8) / 132;
       // Draw a soft black shadow strip next to the column line
       const shadowGrad = ctx.createLinearGradient(x - 25, 0, x + 25, 0);
       shadowGrad.addColorStop(0, 'rgba(0, 0, 0, 0)');
@@ -259,10 +259,10 @@ export default function MemoryScene({ activePlaceId, memories, onPanelClick }) {
     ctx.fillStyle = centralGrad;
     ctx.fillRect(0, 0, 1024, 2048);
 
-    // 5. Pre-baked reflected glows from the arch lights (spaced every 6 units)
-    // Z starts at 12 and goes down to -66
-    for (let i = 0; i <= 13; i++) {
-      const y = 2048 * (i * 6) / 78;
+    // 5. Pre-baked reflected glows from the arch lights (spaced every 8 units)
+    // Z starts at 12 and goes down to -120
+    for (let i = 0; i <= 17; i++) {
+      const y = 2048 * (i * 8) / 132;
       // Draw horizontally stretched reflection highlights across the width
       const archGlow = ctx.createRadialGradient(512, y, 0, 512, y, 220);
       archGlow.addColorStop(0, 'rgba(255, 235, 215, 0.055)'); // soft bounce highlight
@@ -314,34 +314,39 @@ export default function MemoryScene({ activePlaceId, memories, onPanelClick }) {
   const floorGridTexture = useMemo(() => {
     if (typeof window === 'undefined') return null;
     const canvas = document.createElement('canvas');
-    canvas.width = 512;
-    canvas.height = 512;
+    canvas.width = 1024;
+    canvas.height = 1024;
     const ctx = canvas.getContext('2d');
     
-    // Base tile gray
-    ctx.fillStyle = '#141212';
-    ctx.fillRect(0, 0, 512, 512);
+    // Base tile dark charcoal (low roughness value)
+    ctx.fillStyle = '#0a0a0a';
+    ctx.fillRect(0, 0, 1024, 1024);
     
-    // Draw tile mortar seams
-    ctx.strokeStyle = '#262222';
-    ctx.lineWidth = 4;
-    const tileSize = 64;
-    for (let x = 0; x <= 512; x += tileSize) {
+    // Draw tile mortar seams with a slightly lighter color (representing higher roughness inside the seams)
+    ctx.strokeStyle = '#3c3c3c';
+    ctx.lineWidth = 6;
+    const tileSize = 128; // 1024 / 8 tiles
+    for (let x = 0; x <= 1024; x += tileSize) {
       ctx.beginPath();
       ctx.moveTo(x, 0);
-      ctx.lineTo(x, 512);
+      ctx.lineTo(x, 1024);
       ctx.stroke();
       
       ctx.beginPath();
       ctx.moveTo(0, x);
-      ctx.lineTo(512, x);
+      ctx.lineTo(1024, x);
       ctx.stroke();
     }
     
     const texture = new THREE.CanvasTexture(canvas);
     texture.wrapS = THREE.RepeatWrapping;
     texture.wrapT = THREE.RepeatWrapping;
-    texture.repeat.set(4, 36);
+    texture.repeat.set(4, 60);
+    texture.minFilter = THREE.LinearMipmapLinearFilter;
+    texture.magFilter = THREE.LinearFilter;
+    texture.anisotropy = 16;
+    texture.generateMipmaps = true;
+    texture.needsUpdate = true;
     return texture;
   }, []);
 
@@ -367,16 +372,19 @@ export default function MemoryScene({ activePlaceId, memories, onPanelClick }) {
     return texture;
   }, []);
 
-  // 4. Generate warm amber embers/dust particle positions
+  // 4. Generate warm amber embers/dust particle positions in a cylindrical volume matching the arched tunnel
   const [particlePositions, particleSpeeds] = useMemo(() => {
-    const count = 250;
+    const count = 350;
     const positions = new Float32Array(count * 3);
     const speeds = new Float32Array(count);
     for (let i = 0; i < count; i++) {
-      positions[i * 3] = (Math.random() - 0.5) * 12; // X wide
-      positions[i * 3 + 1] = Math.random() * 4.2;    // Y height
-      // Spanning from z = 12 (start of shifted tunnel) to z = -66 (end of shifted tunnel)
-      positions[i * 3 + 2] = 12 + Math.random() * -78; // Z depth
+      // Cylindrical distribution: top semi-circle centered at [0, -1.0] with radius 4.2
+      const angle = Math.random() * Math.PI;
+      const r = 0.2 + Math.random() * 4.0;
+      positions[i * 3] = Math.cos(angle) * r;
+      positions[i * 3 + 1] = Math.max(0.05, -1.0 + Math.sin(angle) * r); // keep above floor level
+      // Spanning from z = 12 to z = -120
+      positions[i * 3 + 2] = 12 + Math.random() * -132; // Z depth
       speeds[i] = 0.001 + Math.random() * 0.002;     // Drift speed
     }
     return [positions, speeds];
@@ -393,26 +401,38 @@ export default function MemoryScene({ activePlaceId, memories, onPanelClick }) {
       scrub: 1.6, // buttery smooth scrub with momentum
       onUpdate: (self) => {
         // Map scroll progress (0 to 1) to camera Z position
-        // From Z = 3.5 (start) down to Z = -52 (end of the exhibition corridor)
-        scrollProxy.current.z = 3.5 + self.progress * -55.5;
+        // From Z = 3.5 (start) down dynamically based on number of memories
+        scrollProxy.current.z = 3.5 + self.progress * -scrollDepth;
       }
     });
 
     return () => {
       trigger.kill();
     };
-  }, []);
+  }, [scrollDepth]);
 
   const getCameraPathX = (z) => {
+    // Extended zigzag path to keep organic feel throughout the full tunnel depth
     const path = [
-      { z: 3.5, x: 0 },
-      { z: -8, x: -1.2 },
-      { z: -16, x: 1.2 },
-      { z: -24, x: -1.0 },
-      { z: -32, x: 1.0 },
-      { z: -40, x: -1.1 },
-      { z: -48, x: 0 },
-      { z: -60, x: 0 }
+      { z:   3.5, x:  0.0 },
+      { z:  -8,   x: -1.2 },
+      { z: -16,   x:  1.2 },
+      { z: -24,   x: -1.0 },
+      { z: -32,   x:  1.0 },
+      { z: -40,   x: -1.1 },
+      { z: -48,   x:  0.0 },
+      { z: -60,   x:  0.0 },
+      { z: -68,   x: -1.2 },
+      { z: -76,   x:  1.2 },
+      { z: -84,   x: -1.0 },
+      { z: -92,   x:  1.0 },
+      { z: -100,  x: -1.1 },
+      { z: -108,  x:  0.0 },
+      { z: -120,  x:  0.0 },
+      { z: -128,  x: -1.2 },
+      { z: -136,  x:  1.2 },
+      { z: -144,  x: -1.0 },
+      { z: -160,  x:  0.0 },
     ];
 
     for (let i = 0; i < path.length - 1; i++) {
@@ -477,35 +497,62 @@ export default function MemoryScene({ activePlaceId, memories, onPanelClick }) {
   
   // Shift the entire corridor to enclose the camera at its starting position (z = 3.5)
   const startZ = 12;      // Corridor start position (behind the camera's initial position)
-  const endZ = -66;        // Corridor end position (ahead of the camera's final position)
-  const corridorLength = startZ - endZ;      // 78 units
-  const corridorCenterZ = (startZ + endZ) / 2; // -27 units
+  const endZ = -(scrollDepth + 12); // Extend corridor dynamically past camera's final position
+  const corridorLength = startZ - endZ;      // dynamic
+  const corridorCenterZ = (startZ + endZ) / 2; // dynamic center
+
+  // Update floor texture tiling to match corridor length (keeps grid density consistent)
+  if (floorGridTexture) {
+    floorGridTexture.repeat.set(4, Math.round(corridorLength * 0.45));
+  }
   
-  const segmentSpacing = 6;
+  const segmentSpacing = 8;
   const totalSegments = Math.ceil(corridorLength / segmentSpacing) + 1;
   const segments = Array.from({ length: totalSegments });
+
+  // Calculate distance-based opacity decay for neon glow elements — fades toward end of corridor
+  const getGlowOpacity = (z) => {
+    const startFade = -10;
+    const endFade = endZ + 10; // fade to near end of corridor (dynamic)
+    if (z > startFade) return 1.0;
+    if (z < endFade) return 0.01;
+    const factor = (z - startFade) / (endFade - startFade);
+    return 1.0 - factor * 0.99;
+  };
 
   return (
     <>
       {/* Raised ambient light to reveal concrete boundaries and columns in shaded parts */}
-      <ambientLight intensity={0.9} />
+      <ambientLight intensity={1.1} />
 
-      {/* Main warm cinematic spotlights projecting dynamic color highlights onto raw concrete walls */}
-      <pointLight color={activeColors.spotlight} intensity={120} distance={30} decay={2.0} position={[0, 3.2, 8]} />
-      <pointLight color={activeColors.spotlight} intensity={120} distance={30} decay={2.0} position={[0, 3.2, -8]} />
-      <pointLight color={activeColors.spotlight} intensity={120} distance={30} decay={2.0} position={[0, 3.2, -24]} />
-      <pointLight color={activeColors.spotlight} intensity={120} distance={30} decay={2.0} position={[0, 3.2, -40]} />
-      <pointLight color={activeColors.spotlight} intensity={90} distance={25} decay={2.0} position={[0, 3.2, -54]} />
+      {/* Dynamic warm cinematic spotlights — auto-generated every 16 units across the full corridor */}
+      {Array.from({ length: Math.ceil(corridorLength / 16) + 1 }, (_, i) => {
+        const z = startZ - 4 - i * 16; // first light near z=8, then -8, -24, -40...
+        if (z < endZ) return null;
+        // Lights near camera start are slightly brighter
+        const intensity = i < 4 ? 150 : 120;
+        const distance = i < 4 ? 30 : 26;
+        return (
+          <pointLight
+            key={`ceiling-light-${i}`}
+            color={activeColors.spotlight}
+            intensity={intensity}
+            distance={distance}
+            decay={2.0}
+            position={[0, 3.2, z]}
+          />
+        );
+      })}
 
       {/* 1. Glossy Reflective Floor (Rich Dark Granite Tile Layout) */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, corridorCenterZ]} receiveShadow>
         <planeGeometry args={[wallWidth, corridorLength]} />
         <MeshReflectorMaterial
-          blur={[400, 100]}
+          blur={[10, 10]}
           resolution={1024}
-          mixBlur={1.0}
-          mixStrength={60}
-          roughness={0.12}
+          mixBlur={0.25}
+          mixStrength={90}
+          roughness={0.03}
           roughnessMap={floorGridTexture} /* procedural dark tiled texture roughness mapping */
           depthScale={1.3}
           minDepthThreshold={0.4}
@@ -554,9 +601,10 @@ export default function MemoryScene({ activePlaceId, memories, onPanelClick }) {
       {/* 5. Repeated structural elements along the corridor */}
       {segments.map((_, i) => {
         const z = startZ - i * segmentSpacing;
+        const opacity = getGlowOpacity(z);
         return (
           <group key={i}>
-            {/* Left Round Pillar (Smooth Cylinder Column - Soft specular lighting highlights) */}
+            {/* Left Pillar (Smooth Cylinder Column - Soft specular lighting highlights) */}
             <mesh position={[-wallWidth / 2 + 0.18, 1.75, z]} castShadow receiveShadow>
               <cylinderGeometry args={[0.15, 0.15, 3.5, 24]} />
               <meshStandardMaterial 
@@ -583,17 +631,32 @@ export default function MemoryScene({ activePlaceId, memories, onPanelClick }) {
             {/* Glowing Volumetric Semi-Cylindrical Archway (Softens Ceiling Ribs with dynamic circular lines) */}
             <mesh position={[0, -1.0, z]}>
               <torusGeometry args={[4.5, 0.045, 12, 48, Math.PI]} />
-              <meshBasicMaterial color={activeColors.neon} toneMapped={false} />
+              <meshBasicMaterial 
+                color={activeColors.neon} 
+                toneMapped={false} 
+                transparent
+                opacity={opacity}
+              />
             </mesh>
             
             {/* Ambient Wall Segments (Bolder Glowing Dynamic Perspective Lines) */}
             <mesh position={[-wallWidth / 2 + 0.03, 1.4, z]}>
-              <boxGeometry args={[0.04, 0.04, 3.0]} /> {/* made thicker and longer */}
-              <meshBasicMaterial color={activeColors.neon} toneMapped={false} />
+              <boxGeometry args={[0.04, 0.04, 3.0]} />
+              <meshBasicMaterial 
+                color={activeColors.neon} 
+                toneMapped={false} 
+                transparent
+                opacity={opacity}
+              />
             </mesh>
             <mesh position={[wallWidth / 2 - 0.03, 1.4, z]}>
               <boxGeometry args={[0.04, 0.04, 3.0]} />
-              <meshBasicMaterial color={activeColors.neon} toneMapped={false} />
+              <meshBasicMaterial 
+                color={activeColors.neon} 
+                toneMapped={false} 
+                transparent
+                opacity={opacity}
+              />
             </mesh>
           </group>
         );
@@ -638,6 +701,19 @@ export default function MemoryScene({ activePlaceId, memories, onPanelClick }) {
           blending={THREE.AdditiveBlending}
         />
       </points>
+
+      {/* Distant volumetric central glow — positioned just past the last photo (dynamic endZ) */}
+      <mesh position={[0, -1.0, endZ + 6]}>
+        <planeGeometry args={[10, 10]} />
+        <meshBasicMaterial
+          map={glowTexture}
+          color={activeColors.spotlight}
+          transparent
+          opacity={0.65}
+          blending={THREE.AdditiveBlending}
+          depthWrite={false}
+        />
+      </mesh>
 
       {/* Render memories Photo Panels */}
       {memories.map((memory) => (

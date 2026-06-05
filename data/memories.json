@@ -86,29 +86,55 @@
         ]
       },
       {
-        "id": "dalat-1780042605859",
-        "image": "/memories/1780042605829-anh.jpg",
-        "title": "1",
-        "caption": "1",
-        "year": "2024",
+        "id": "dalat-1780212390655",
+        "image": "/memories/1780212390632-1780061422091202211411047377573500215827690737049683c740d016b7ebc24cf4bbd8a90ed844.jpg",
+        "title": "Posing with \"Da Lat\" 📸✨",
+        "caption": "Clear skies, calm waters, and the ultimate crew. Just another beautiful chapter in our memory book.",
+        "year": "2026",
         "glowColor": "#00ffaa",
         "position": [
           -2.5,
-          0.7733587991539996,
+          0.4564714271721218,
           -56
         ]
       },
       {
-        "id": "dalat-1780042622776",
-        "image": "/memories/1780042622753-images.jpg",
-        "title": "2",
-        "caption": "2",
+        "id": "dalat-1780212557722",
+        "image": "/memories/1780212557708-17800615689302022114110473775735002158276907370496025f90d431a84e6d3e72dcfdcc09bb40.jpg",
+        "title": "Under the Turbine ☁️",
+        "caption": "SILLY FACES, windy hair, and a massive windmill.",
         "year": "2026",
         "glowColor": "#ff5500",
         "position": [
           2.5,
-          0.3343522722647265,
+          0.6074040160620741,
           -64
+        ]
+      },
+      {
+        "id": "dalat-1780212715242",
+        "image": "/memories/1780212715222-178006142212620221141104737757350021582769073704964965cb2b4cf8ba9d91d48ba9037130b0.jpg",
+        "title": "Cozy Bites 🍲✨",
+        "caption": "Casual poses, empty bowls, and endless table talk",
+        "year": "2026",
+        "glowColor": "#33ccff",
+        "position": [
+          -2.5,
+          0.5332054105701032,
+          -72
+        ]
+      },
+      {
+        "id": "dalat-1780212822551",
+        "image": "/memories/1780212822529-17800614221122022114110473775735002158276907370496aec117b3a6769744c7d7b9dff2ad9faa.jpg",
+        "title": "BBQ Night in Da Lat 🍢🔥",
+        "caption": "Keeping each other warm with laughter and good food. ",
+        "year": "2026",
+        "glowColor": "#ff0055",
+        "position": [
+          2.5,
+          0.45567471116932573,
+          -80
         ]
       }
     ]
