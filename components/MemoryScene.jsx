@@ -9,7 +9,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 import PhotoPanel from './PhotoPanel';
 
-export default function MemoryScene({ activePlaceId, memories, onPanelClick, scrollDepth = 55.5 }) {
+export default function MemoryScene({ activePlaceId, memories, onPanelClick, scrollDepth = 55.5, colors }) {
   const scrollProxy = useRef({ z: 3.5 });
   const particlesRef = useRef(null);
   
@@ -47,7 +47,7 @@ export default function MemoryScene({ activePlaceId, memories, onPanelClick, scr
     }
   }), []);
 
-  const activeColors = themeColors[activePlaceId] || themeColors.dalat;
+  const activeColors = colors || themeColors[activePlaceId] || themeColors.dalat;
   
   // 1. Generate procedural raw concrete texture bump map dynamically
   const concreteTexture = useMemo(() => {

@@ -17,6 +17,34 @@ export default function AdminPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [isAudioUploading, setIsAudioUploading] = useState(false);
 
+  // Pastel presets configuration
+  const PASTEL_PRESETS = [
+    {
+      name: 'Cam Đào (Peach)',
+      colors: { spotlight: '#ffb380', neon: '#ffd1b3', particles: '#ffe6d9', ceilingGlow: '#ffccaa' }
+    },
+    {
+      name: 'Xanh Biển (Aqua)',
+      colors: { spotlight: '#80c1ff', neon: '#b3d9ff', particles: '#e6f2ff', ceilingGlow: '#cce6ff' }
+    },
+    {
+      name: 'Hồng Sen (Lotus)',
+      colors: { spotlight: '#ff80b3', neon: '#ffb3d1', particles: '#ffe6f0', ceilingGlow: '#ffcce0' }
+    },
+    {
+      name: 'Lá Sage (Sage)',
+      colors: { spotlight: '#80e699', neon: '#b3f0c2', particles: '#e6faeb', ceilingGlow: '#ccf5d6' }
+    },
+    {
+      name: 'Tím Lavender (Lilac)',
+      colors: { spotlight: '#b380ff', neon: '#d9b3ff', particles: '#f2e6ff', ceilingGlow: '#e6ccff' }
+    },
+    {
+      name: 'Vàng Nắng (Butter)',
+      colors: { spotlight: '#ffe680', neon: '#fff2b3', particles: '#fff9e6', ceilingGlow: '#fff5cc' }
+    }
+  ];
+
   // Location Tab & Form States
   const [activeTab, setActiveTab] = useState('memories'); // 'memories' or 'places'
   const [placeForm, setPlaceForm] = useState({
@@ -24,7 +52,13 @@ export default function AdminPage() {
     name: '',
     prefix: '',
     tagline: '',
-    description: ''
+    description: '',
+    colors: {
+      spotlight: '#ffb380',
+      neon: '#ffd1b3',
+      particles: '#ffe6d9',
+      ceilingGlow: '#ffccaa'
+    }
   });
   const [editingPlaceId, setEditingPlaceId] = useState(null);
 
@@ -205,7 +239,13 @@ export default function AdminPage() {
       name: '',
       prefix: getNextPrefix(currentPlaces),
       tagline: '',
-      description: ''
+      description: '',
+      colors: {
+        spotlight: '#ffb380',
+        neon: '#ffd1b3',
+        particles: '#ffe6d9',
+        ceilingGlow: '#ffccaa'
+      }
     });
     setEditingPlaceId(null);
   };
@@ -414,13 +454,19 @@ export default function AdminPage() {
       name: place.name,
       prefix: place.prefix || '',
       tagline: place.tagline || '',
-      description: place.description || ''
+      description: place.description || '',
+      colors: place.colors || {
+        spotlight: '#ffb380',
+        neon: '#ffd1b3',
+        particles: '#ffe6d9',
+        ceilingGlow: '#ffccaa'
+      }
     });
   };
 
   const handlePlaceSubmit = async (e) => {
     e.preventDefault();
-    const { id, name, prefix, tagline, description } = placeForm;
+    const { id, name, prefix, tagline, description, colors } = placeForm;
     
     if (!id || !name || !prefix) {
       return alert('Please fill in ID, Name, and Prefix.');
@@ -429,6 +475,13 @@ export default function AdminPage() {
     if (!/^[a-z0-9-]+$/.test(id)) {
       return alert('ID must be lowercase alphanumeric and dashes only (e.g. nha-trang).');
     }
+
+    const finalColors = colors || {
+      spotlight: '#ffb380',
+      neon: '#ffd1b3',
+      particles: '#ffe6d9',
+      ceilingGlow: '#ffccaa'
+    };
 
     if (editingPlaceId) {
       // Edit existing place
@@ -439,7 +492,8 @@ export default function AdminPage() {
             name,
             prefix,
             tagline,
-            description
+            description,
+            colors: finalColors
           };
         }
         return p;
@@ -460,7 +514,8 @@ export default function AdminPage() {
         tagline,
         description,
         bgMusic: '',
-        memories: []
+        memories: [],
+        colors: finalColors
       };
       
       const updatedPlaces = [...places, newPlace];
@@ -770,6 +825,96 @@ export default function AdminPage() {
                     onChange={e => setPlaceForm(prev => ({ ...prev, description: e.target.value }))}
                     className="bg-black border border-neutral-800 p-3 rounded text-sm outline-none focus:border-amber-500 text-white h-24 resize-none"
                   />
+                </div>
+
+                {/* Color Theme Selector Section */}
+                <div className="flex flex-col gap-4 border border-neutral-800 p-4 rounded bg-black/40">
+                  <label className="text-xs font-mono text-neutral-400 uppercase tracking-widest">
+                    🎨 MÀU SẮC ĐƯỜNG HẦM (COLOR THEME)
+                  </label>
+                  
+                  {/* Presets Grid */}
+                  <div className="grid grid-cols-3 gap-2">
+                    {PASTEL_PRESETS.map((preset) => (
+                      <button
+                        key={preset.name}
+                        type="button"
+                        onClick={() => setPlaceForm(prev => ({ ...prev, colors: preset.colors }))}
+                        className="text-[10px] font-mono p-2 border border-neutral-800 rounded bg-neutral-900 hover:border-amber-500 transition-colors flex flex-col items-center gap-1.5 cursor-pointer"
+                      >
+                        <span className="truncate w-full text-center">{preset.name}</span>
+                        <div className="flex gap-1 justify-center">
+                          <span className="w-2.5 h-2.5 rounded-full border border-black/45" style={{ backgroundColor: preset.colors.spotlight }} />
+                          <span className="w-2.5 h-2.5 rounded-full border border-black/45" style={{ backgroundColor: preset.colors.neon }} />
+                          <span className="w-2.5 h-2.5 rounded-full border border-black/45" style={{ backgroundColor: preset.colors.particles }} />
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Individual Color Pickers */}
+                  <div className="grid grid-cols-2 gap-3 text-xs font-mono">
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[10px] text-neutral-500">Spotlight (Đèn chính)</span>
+                      <div className="flex items-center gap-2">
+                        <input 
+                          type="color" 
+                          value={placeForm.colors?.spotlight || '#ffb380'} 
+                          onChange={e => setPlaceForm(prev => ({ 
+                            ...prev, 
+                            colors: { ...(prev.colors || {}), spotlight: e.target.value } 
+                          }))}
+                          className="w-8 h-8 rounded border-0 bg-transparent cursor-pointer"
+                        />
+                        <span className="text-[10px]">{placeForm.colors?.spotlight}</span>
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[10px] text-neutral-500">Neon (Viền dải led)</span>
+                      <div className="flex items-center gap-2">
+                        <input 
+                          type="color" 
+                          value={placeForm.colors?.neon || '#ffd1b3'} 
+                          onChange={e => setPlaceForm(prev => ({ 
+                            ...prev, 
+                            colors: { ...(prev.colors || {}), neon: e.target.value } 
+                          }))}
+                          className="w-8 h-8 rounded border-0 bg-transparent cursor-pointer"
+                        />
+                        <span className="text-[10px]">{placeForm.colors?.neon}</span>
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[10px] text-neutral-500">Particles (Hạt bụi)</span>
+                      <div className="flex items-center gap-2">
+                        <input 
+                          type="color" 
+                          value={placeForm.colors?.particles || '#ffe6d9'} 
+                          onChange={e => setPlaceForm(prev => ({ 
+                            ...prev, 
+                            colors: { ...(prev.colors || {}), particles: e.target.value } 
+                          }))}
+                          className="w-8 h-8 rounded border-0 bg-transparent cursor-pointer"
+                        />
+                        <span className="text-[10px]">{placeForm.colors?.particles}</span>
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[10px] text-neutral-500">Ceiling Glow (Trần)</span>
+                      <div className="flex items-center gap-2">
+                        <input 
+                          type="color" 
+                          value={placeForm.colors?.ceilingGlow || '#ffccaa'} 
+                          onChange={e => setPlaceForm(prev => ({ 
+                            ...prev, 
+                            colors: { ...(prev.colors || {}), ceilingGlow: e.target.value } 
+                          }))}
+                          className="w-8 h-8 rounded border-0 bg-transparent cursor-pointer"
+                        />
+                        <span className="text-[10px]">{placeForm.colors?.ceilingGlow}</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="flex gap-2 mt-2">

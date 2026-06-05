@@ -306,6 +306,7 @@ export default function MemoryExperience() {
         memories={activeMemories} 
         onPanelClick={handlePanelClick}
         scrollDepth={scrollDepth}
+        colors={activePlace?.colors}
       />
 
       {/* Screen Grid overlay effect (subtle scanline premium design) */}

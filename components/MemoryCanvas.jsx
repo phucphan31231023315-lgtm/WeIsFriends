@@ -4,7 +4,7 @@ import { Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
 import MemoryScene from './MemoryScene';
 
-export default function MemoryCanvas({ activePlaceId, memories, onPanelClick, scrollDepth = 55.5 }) {
+export default function MemoryCanvas({ activePlaceId, memories, onPanelClick, scrollDepth = 55.5, colors }) {
   return (
     <div className="fixed inset-0 w-full h-full bg-[#060404] z-0">
       <Canvas
@@ -20,6 +20,7 @@ export default function MemoryCanvas({ activePlaceId, memories, onPanelClick, sc
             memories={memories} 
             onPanelClick={onPanelClick}
             scrollDepth={scrollDepth}
+            colors={colors}
           />
         </Suspense>
       </Canvas>
